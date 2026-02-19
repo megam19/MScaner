@@ -68,7 +68,7 @@ func writeDatabase(fileName string, fileSize int64) {
 	database, _ = sql.Open("sqlite", "./database/sqlite3DB.db")
 	defer database.Close()
 
-	//Запрос записывает в случае отсутствует fileName или изменился размер файла
+	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
 	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?)
 			  ON CONFLICT(fileName) DO UPDATE SET 
 				fileSize = excluded.fileSize,
