@@ -13,7 +13,9 @@ import (
 
 // var DIR_PATH = "\\\\10.33.6.202\\na_prosmotr"
 // var DIR_PATH = "\\\\10.33.6.202\\lowres\\LOWRES_ARCHIVE"
-var DIR_PATH = "\\\\fserver\\harris"
+// var DIR_PATH = "\\\\fserver\\harris"
+var DIR_PATH = "\\\\air-02\\imagine_mxf"
+
 var database *sql.DB
 var timeSpeep = 60 //в секундах
 
