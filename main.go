@@ -23,7 +23,7 @@ var timeSpeep = 160 //в секундах
 var errDB error
 var arr_items_DBStruct []itemDBStruct
 var arr_items_FolderStruct []itemFolderStruct
-var i_db itemDBStruct
+
 var i_folder itemFolderStruct
 
 type itemDBStruct struct {
@@ -40,7 +40,7 @@ func main() {
 	createDBifNotExists()
 
 	for {
-		readDatabase()
+		//readDatabase()
 		scanDir(DIR_PATH)
 		time.Sleep(time.Duration(timeSpeep) * time.Second)
 	}
@@ -68,6 +68,10 @@ func createDBifNotExists() {
 	queryPrepare.Exec()
 }
 
+func differenStucts() {
+
+}
+
 func scanDir(dirPath string) {
 
 	files, err := os.ReadDir(dirPath) // Расчет на 20-40к файлов
@@ -84,9 +88,11 @@ func scanDir(dirPath string) {
 		size := info.Size() / 1024 //Преобразование в КБ
 
 		if filepath.Ext(file.Name()) != ".mxf" { // Если папка и не mxf
-			fmt.Println("не MXF: " + file.Name())
-
+			fmt.Println("Совсем не MXF: " + file.Name())
+			continue
 		}
+
+		fmt.Println("MXF: " + file.Name())
 
 		i_folder = itemFolderStruct{file.Name(), size}                    //наполняем структуру
 		arr_items_FolderStruct = append(arr_items_FolderStruct, i_folder) // наполняем массив структурами
@@ -98,6 +104,8 @@ func scanDir(dirPath string) {
 }
 
 func readDatabase() {
+	var i_db itemDBStruct
+
 	database, errDB = sql.Open("sqlite", databasePath)
 	if errDB != nil {
 		log.Fatal("База данных недоступен " + errDB.Error())
@@ -120,9 +128,6 @@ func readDatabase() {
 		arr_items_DBStruct = append(arr_items_DBStruct, i_db) // наполняем массив структурами
 	}
 
-	for _, p := range arr_items_DBStruct {
-		fmt.Println(p.fileName, p.fileSize)
-	}
 	fmt.Printf("******************* Конец чтения Базы **********************")
 
 }
