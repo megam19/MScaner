@@ -21,16 +21,12 @@ var queryPrepare *sql.Stmt
 var databasePath = "./database/sqlite3DB.db"
 var timeSpeep = 160 //в секундах
 var errDB error
-var arr_items_DBStruct []itemDBStruct
-var arr_items_FolderStruct []itemFolderStruct
+var arr_items_DBStruct []itemStruct
+var arr_items_FolderStruct []itemStruct
 
-var i_folder itemFolderStruct
+var i_folder itemStruct
 
-type itemDBStruct struct {
-	fileName string
-	fileSize int64
-}
-type itemFolderStruct struct {
+type itemStruct struct {
 	fileName string
 	fileSize int64
 }
@@ -40,8 +36,15 @@ func main() {
 	createDBifNotExists()
 
 	for {
-		//readDatabase()
+		readDatabase()
 		scanDir(DIR_PATH)
+		items := GetItemsDifferents(arr_items_DBStruct, arr_items_FolderStruct)
+
+		for _, item := range items {
+			fmt.Println("Новые файлы: " + item.fileName)
+			writeDatabase(item.fileName, item.fileSize)
+		}
+
 		time.Sleep(time.Duration(timeSpeep) * time.Second)
 	}
 }
@@ -68,8 +71,29 @@ func createDBifNotExists() {
 	queryPrepare.Exec()
 }
 
-func differenStucts() {
+// Функция возвращает элементы, которые:
+// - есть в folder, но нет в db   → новые
+// - есть в обоих, но размер отличается → изменённые
+func GetItemsDifferents(db []itemStruct, folder []itemStruct) []itemStruct {
+	// Карта для быстрого поиска: имя файла → размер в базе
+	dbMap := make(map[string]int64, len(db))
 
+	for _, item := range db {
+		dbMap[item.fileName] = item.fileSize
+	}
+
+	var results []itemStruct
+
+	// Проходим по текущему состоянию папки
+	for _, f := range folder {
+		if dbSize, exists := dbMap[f.fileName]; !exists || dbSize != f.fileSize {
+			// либо файла вообще нет в базе
+			// либо размер изменился
+			results = append(results, f)
+		}
+	}
+
+	return results
 }
 
 func scanDir(dirPath string) {
@@ -92,19 +116,17 @@ func scanDir(dirPath string) {
 			continue
 		}
 
-		fmt.Println("MXF: " + file.Name())
+		//fmt.Println("MXF: " + file.Name())
 
-		i_folder = itemFolderStruct{file.Name(), size}                    //наполняем структуру
+		i_folder = itemStruct{file.Name(), size}                          //наполняем структуру
 		arr_items_FolderStruct = append(arr_items_FolderStruct, i_folder) // наполняем массив структурами
-
-		//writeDatabase(file.Name(), size)
 
 	}
 
 }
 
 func readDatabase() {
-	var i_db itemDBStruct
+	var i_db itemStruct
 
 	database, errDB = sql.Open("sqlite", databasePath)
 	if errDB != nil {
@@ -137,11 +159,12 @@ func writeDatabase(fileName string, fileSize int64) {
 	defer database.Close()
 
 	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
-	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?)
-			  ON CONFLICT(fileName) DO UPDATE SET 
-				fileSize = excluded.fileSize,
-				updatedAt = CURRENT_TIMESTAMP;`
+	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?);`
 
-	result, _ := database.Prepare(queryINSERT)
+	result, errDB := database.Prepare(queryINSERT)
+	if errDB != nil {
+		log.Fatal("Ошибка в записи в базу данных")
+	}
+
 	result.Exec(fileName, fileSize)
 }
