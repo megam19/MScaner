@@ -38,6 +38,7 @@ func main() {
 	for {
 		readDatabase()
 		scanDir(DIR_PATH)
+		//Слайс для хранения информации о новых файлах, т.е. разницы между базой и папкой
 		items := GetItemsDifferents(arr_items_DBStruct, arr_items_FolderStruct)
 
 		for _, item := range items {
@@ -150,7 +151,7 @@ func readDatabase() {
 		arr_items_DBStruct = append(arr_items_DBStruct, i_db) // наполняем массив структурами
 	}
 
-	fmt.Printf("******************* Конец чтения Базы **********************")
+	fmt.Println("******************* Конец чтения Базы **********************")
 
 }
 
