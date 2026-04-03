@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MScaner/packages"
 	"database/sql"
 	"fmt"
 	"log"
@@ -16,14 +17,9 @@ import (
 // var DIR_PATH = "\\\\air-02\\imagine_mxf"
 var DIR_PATH = "\\\\fserver\\harris"
 
-var database *sql.DB
-var queryPrepare *sql.Stmt
-var databasePath = "./database/sqlite3DB.db"
-var timeSpeep = 160 //в секундах
-var errDB error
+var timeSleep = 60 //в секундах
 var arr_items_DBStruct []itemStruct
 var arr_items_FolderStruct []itemStruct
-
 var i_folder itemStruct
 
 type itemStruct struct {
@@ -33,43 +29,24 @@ type itemStruct struct {
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)
-	createDBifNotExists()
+	packages.ConnectToDB()
 
 	for {
+		arr_items_DBStruct = arr_items_DBStruct[:0]         //обнуление слайса но остается прежняя capacity
+		arr_items_FolderStruct = arr_items_FolderStruct[:0] //обнуление слайса но остается прежняя capacity
 		readDatabase()
 		scanDir(DIR_PATH)
+
 		//Слайс для хранения информации о новых файлах, т.е. разницы между базой и папкой
 		items := GetItemsDifferents(arr_items_DBStruct, arr_items_FolderStruct)
 
 		for _, item := range items {
-			fmt.Println("Новые файлы: " + item.fileName)
-			writeDatabase(item.fileName, item.fileSize)
+			fmt.Println("Новый файл: " + item.fileName)
+			packages.WriteDatabase(item.fileName, item.fileSize) //Запись в базу данных
 		}
 
-		time.Sleep(time.Duration(timeSpeep) * time.Second)
+		time.Sleep(time.Duration(timeSleep) * time.Second) // Повторять каждые timeSleep секунд
 	}
-}
-
-func createDBifNotExists() {
-
-	database, errDB = sql.Open("sqlite", databasePath)
-	if errDB != nil {
-		log.Fatalf("Ошибка открытия базы %d", errDB)
-	}
-	defer database.Close()
-
-	queryCreateDB := `CREATE TABLE IF NOT EXISTS files(
-						id INTEGER PRIMARY KEY AUTOINCREMENT,	
-						fileName TEXT NOT NULL UNIQUE, 
-						fileSize INTEGER, 
-						createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
-						updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-					)`
-	queryPrepare, err := database.Prepare(queryCreateDB)
-	if err != nil {
-		log.Fatalf("Ошибка при создании таблицы: %q", err)
-	}
-	queryPrepare.Exec()
 }
 
 // Функция возвращает элементы, которые:
@@ -105,23 +82,20 @@ func scanDir(dirPath string) {
 	}
 
 	for _, file := range files {
-		if file.IsDir() && filepath.Ext(file.Name()) != ".mxf" {
-			continue
-		}
-
-		info, _ := file.Info()
-		size := info.Size() / 1024 //Преобразование в КБ
-
-		if filepath.Ext(file.Name()) != ".mxf" { // Если папка и не mxf
+		if file.IsDir() || filepath.Ext(file.Name()) != ".mxf" {
 			fmt.Println("Совсем не MXF: " + file.Name())
 			continue
 		}
 
-		//fmt.Println("MXF: " + file.Name())
+		info, err := file.Info()
+		if err != nil {
+			log.Printf("Не удалось получить инфо о файле %s: %v", file.Name(), err)
+		}
+
+		size := info.Size() / 1024 //Преобразование в КБ
 
 		i_folder = itemStruct{file.Name(), size}                          //наполняем структуру
 		arr_items_FolderStruct = append(arr_items_FolderStruct, i_folder) // наполняем массив структурами
-
 	}
 
 }
@@ -129,17 +103,18 @@ func scanDir(dirPath string) {
 func readDatabase() {
 	var i_db itemStruct
 
-	database, errDB = sql.Open("sqlite", databasePath)
-	if errDB != nil {
-		log.Fatal("База данных недоступен " + errDB.Error())
+	packages.Database, packages.ErrDB = sql.Open("sqlite", packages.DatabasePath)
+	if packages.ErrDB != nil {
+		log.Fatal("База данных недоступен " + packages.ErrDB.Error())
 	}
-	defer database.Close()
+	defer packages.Database.Close()
 
 	querySELECT := `SELECT fileName, fileSize FROM files;`
-	rows, errDB := database.Query(querySELECT)
+	rows, errDB := packages.Database.Query(querySELECT)
 	if errDB != nil {
 		log.Fatalf("Ошибка запроса в базу данных")
 	}
+	defer rows.Close() // сразу после проверки ошибки
 
 	for rows.Next() {
 		err := rows.Scan(&i_db.fileName, &i_db.fileSize) // наполняем структуру
@@ -153,19 +128,4 @@ func readDatabase() {
 
 	fmt.Println("******************* Конец чтения Базы **********************")
 
-}
-
-func writeDatabase(fileName string, fileSize int64) {
-	database, _ = sql.Open("sqlite", databasePath)
-	defer database.Close()
-
-	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
-	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?);`
-
-	result, errDB := database.Prepare(queryINSERT)
-	if errDB != nil {
-		log.Fatal("Ошибка в записи в базу данных")
-	}
-
-	result.Exec(fileName, fileSize)
 }

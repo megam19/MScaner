@@ -1,6 +1,6 @@
 module MScaner
 
-go 1.25.3
+go 1.26.1
 
 require modernc.org/sqlite v1.46.0
 
