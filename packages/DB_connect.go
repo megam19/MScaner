@@ -8,14 +8,13 @@ import (
 var Database *sql.DB
 var queryPrepare *sql.Stmt
 var DatabasePath = "./database/sqlite3DB.db"
-var ErrDB error
 
-func ConnectToDB() {
+func ConnectToDB() *sql.DB {
 
-	Database, ErrDB = sql.Open("sqlite", DatabasePath)
-	if ErrDB != nil {
-		log.Fatalf("Ошибка открытия базы %d", ErrDB)
+	Database1, err := sql.Open("sqlite", DatabasePath)
+	if err != nil {
+		log.Fatalf("Ошибка открытия базы %d", err)
 	}
-	defer Database.Close()
-
+	//defer Database.Close()
+	return Database1
 }
