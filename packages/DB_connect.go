@@ -7,7 +7,8 @@ import (
 
 var Database *sql.DB
 var queryPrepare *sql.Stmt
-var DatabasePath = "./database/sqlite3DB.db"
+
+const DatabasePath = "./database/sqlite3DB.db"
 
 func ConnectToDB() *sql.DB {
 

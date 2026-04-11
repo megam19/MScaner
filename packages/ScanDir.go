@@ -17,7 +17,7 @@ func ScanDir(dirPath string) {
 		fmt.Println(err)
 	}
 
-	//Читаем название,размер файлов только .mxf формат, остаьное отбрасываем
+	//Читаем название,размер файлов только .mxf формат, остальное отбрасываем
 	for _, file := range files {
 		if file.IsDir() || filepath.Ext(file.Name()) != ".mxf" {
 			fmt.Println("Совсем не MXF: " + file.Name())

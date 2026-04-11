@@ -10,9 +10,11 @@ import (
 
 // var DIR_PATH = "\\\\10.33.6.202\\na_prosmotr"
 // var DIR_PATH = "\\\\10.33.6.202\\lowres\\LOWRES_ARCHIVE"
-// var DIR_PATH = "\\\\air-02\\imagine_mxf"
-var DIR_PATH = "\\\\fserver\\harris"
-var timeSleep = 60 //в секундах
+const DIR_PATH = "\\\\air-02\\imagine_mxf"
+
+//const DIR_PATH = "\\\\fserver\\harris"
+
+const timeSleep = 60 //в секундах
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)

@@ -2,6 +2,7 @@ package packages
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -16,6 +17,7 @@ func WriteDatabase(fileName string, fileSize int64) {
 	if errDB != nil {
 		log.Fatal("Ошибка в записи в базу данных")
 	}
+	fmt.Println(fileSize)
 
 	result.Exec(fileName, fileSize)
 }

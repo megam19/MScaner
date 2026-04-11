@@ -14,11 +14,11 @@ func GetItemsDifferents(db []ItemStruct, folder []ItemStruct) []ItemStruct {
 	var results []ItemStruct
 
 	// Проходим по текущему состоянию папки
-	for _, f := range folder {
-		if dbSize, exists := dbMap[f.FileName]; !exists || dbSize != f.FileSize {
+	for _, file := range folder {
+		if dbSize, exists := dbMap[file.FileName]; !exists || dbSize != file.FileSize {
 			// либо файла вообще нет в базе
 			// либо размер изменился
-			results = append(results, f)
+			results = append(results, file)
 		}
 	}
 
