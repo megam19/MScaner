@@ -11,7 +11,10 @@ func WriteDatabase(fileName string, fileSize int64) {
 	defer Database.Close()
 
 	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
-	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?);`
+	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?)
+			  ON CONFLICT(fileName) DO UPDATE SET 
+				fileSize = excluded.fileSize,
+				updatedAt = CURRENT_TIMESTAMP;`
 
 	result, errDB := Database.Prepare(queryINSERT)
 	if errDB != nil {
