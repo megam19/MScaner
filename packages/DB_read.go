@@ -12,8 +12,8 @@ func ReadDatabase(db *sql.DB) {
 	var i_db ItemStruct
 
 	querySELECT := `SELECT fileName, fileSize FROM files;`
-	rows, errDB := db.Query(querySELECT)
-	if errDB != nil {
+	rows, err := db.Query(querySELECT)
+	if err != nil {
 		log.Fatalf("Ошибка запроса в базу данных")
 	}
 	defer rows.Close() // сразу после проверки ошибки
@@ -28,6 +28,6 @@ func ReadDatabase(db *sql.DB) {
 		Arr_items_DBStruct = append(Arr_items_DBStruct, i_db) // наполняем массив структурами
 	}
 
-	fmt.Println("******************* Конец чтения Базы **********************")
+	fmt.Println("******* Конец чтения Базы *********")
 
 }

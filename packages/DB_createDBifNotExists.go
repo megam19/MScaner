@@ -11,7 +11,7 @@ func CreateDBifNotExists() {
 						createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
 						updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
 					)`
-	queryPrepare, err := Database.Prepare(queryCreateDB)
+	queryPrepare, err := DB.Prepare(queryCreateDB)
 	if err != nil {
 		log.Fatalf("Ошибка при создании таблицы: %q", err)
 	}

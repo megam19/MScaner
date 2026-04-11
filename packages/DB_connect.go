@@ -5,17 +5,30 @@ import (
 	"log"
 )
 
-var Database *sql.DB
+var DB *sql.DB
 var queryPrepare *sql.Stmt
 
 const DatabasePath = "./database/sqlite3DB.db"
 
 func ConnectToDB() *sql.DB {
 
-	Database1, err := sql.Open("sqlite", DatabasePath)
+	DB, err := sql.Open("sqlite", DatabasePath)
 	if err != nil {
 		log.Fatalf("Ошибка открытия базы %d", err)
 	}
+
+	queryCreateDB := `CREATE TABLE IF NOT EXISTS files(
+						fileName TEXT NOT NULL UNIQUE, 
+						fileSize INTEGER, 
+						createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
+						updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+					)`
+	queryPrepare, err := DB.Prepare(queryCreateDB)
+	if err != nil {
+		log.Fatalf("Ошибка при создании таблицы: %q", err)
+	}
+	queryPrepare.Exec()
+	//CreateDBifNotExists()
 	//defer Database.Close()
-	return Database1
+	return DB
 }

@@ -2,13 +2,12 @@ package packages
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
 func WriteDatabase(fileName string, fileSize int64) {
-	Database, _ = sql.Open("sqlite", DatabasePath)
-	defer Database.Close()
+	DB, _ = sql.Open("sqlite", DatabasePath)
+	//defer DB.Close()
 
 	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
 	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?)
@@ -16,11 +15,10 @@ func WriteDatabase(fileName string, fileSize int64) {
 				fileSize = excluded.fileSize,
 				updatedAt = CURRENT_TIMESTAMP;`
 
-	result, errDB := Database.Prepare(queryINSERT)
-	if errDB != nil {
+	result, err := DB.Prepare(queryINSERT)
+	if err != nil {
 		log.Fatal("Ошибка в записи в базу данных")
 	}
-	fmt.Println(fileSize)
 
 	result.Exec(fileName, fileSize)
 }

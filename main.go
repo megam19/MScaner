@@ -10,9 +10,9 @@ import (
 
 // var DIR_PATH = "\\\\10.33.6.202\\na_prosmotr"
 // var DIR_PATH = "\\\\10.33.6.202\\lowres\\LOWRES_ARCHIVE"
-const DIR_PATH = "\\\\air-02\\imagine_mxf"
+//const DIR_PATH = "\\\\air-02\\imagine_mxf"
 
-//const DIR_PATH = "\\\\fserver\\harris"
+const DIR_PATH = "\\\\fserver\\harris"
 
 const timeSleep = 60 //в секундах
 
@@ -32,6 +32,7 @@ func main() {
 			fmt.Println("Новый файл: " + item.FileName)
 			packages.WriteDatabase(item.FileName, item.FileSize) //Запись в базу данных
 		}
+		fmt.Println("Цикл завершена")
 
 		time.Sleep(time.Duration(timeSleep) * time.Second) // Повторять каждые timeSleep секунд
 	}
