@@ -19,6 +19,12 @@ func WriteDatabase(fileName string, fileSize int64) {
 	if err != nil {
 		log.Fatal("Ошибка в записи в базу данных")
 	}
+	defer result.Close()
 
-	result.Exec(fileName, fileSize)
+	_, err = result.Exec(fileName, fileSize)
+	if err != nil {
+		log.Printf("ошибка выполнения запроса для файла %s: %v", fileName, err)
+	}
+
+	log.Printf("✓ Файл записан/обновлён: %s (%d KB)", fileName, fileSize)
 }

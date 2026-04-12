@@ -2,7 +2,6 @@ package packages
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
@@ -14,20 +13,20 @@ func ReadDatabase(db *sql.DB) {
 	querySELECT := `SELECT fileName, fileSize FROM files;`
 	rows, err := db.Query(querySELECT)
 	if err != nil {
-		log.Fatalf("Ошибка запроса в базу данных")
+		log.Println("Ошибка запроса в базу данных")
 	}
 	defer rows.Close() // сразу после проверки ошибки
 
 	for rows.Next() {
 		err := rows.Scan(&i_db.FileName, &i_db.FileSize) // наполняем структуру
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 
 		Arr_items_DBStruct = append(Arr_items_DBStruct, i_db) // наполняем массив структурами
 	}
 
-	fmt.Println("******* Конец чтения Базы *********")
+	log.Println("******* Конец чтения Базы *********")
 
 }
