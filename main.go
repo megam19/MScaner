@@ -15,7 +15,7 @@ const DIR_PATH = "\\\\air-02\\imagine_mxf"
 
 //const DIR_PATH = "\\\\fserver\\harris"
 
-const timeSleep = 60 //в секундах
+const timeSleep = 120 //в секундах
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)
@@ -33,7 +33,7 @@ func main() {
 			fmt.Println("Найден файл: " + item.FileName)
 			packages.WriteDatabase(item.FileName, item.FileSize) //Запись в базу данных
 		}
-		fmt.Println("Цикл завершена")
+
 		log.Println("Сканирование...")
 		time.Sleep(time.Duration(timeSleep) * time.Second) // Повторять каждые timeSleep секунд
 	}
