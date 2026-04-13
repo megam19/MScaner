@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func ReadDatabase(db *sql.DB) {
+func DB_read(db *sql.DB) {
 
 	Arr_items_DBStruct = Arr_items_DBStruct[:0] //обнуление слайса но остается прежняя capacity
 	var i_db ItemStruct

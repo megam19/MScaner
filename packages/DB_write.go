@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func WriteDatabase(fileName string, fileSize int64) {
+func DB_write(fileName string, fileSize int64) {
 	DB, _ = sql.Open("sqlite", DatabasePath)
 	//defer DB.Close()
 

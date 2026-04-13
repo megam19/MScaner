@@ -19,19 +19,19 @@ const timeSleep = 120 //в секундах
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)
-	dbConnect := packages.ConnectToDB()
+	dbConnect := packages.DB_connect()
 
 	for {
 
-		packages.ReadDatabase(dbConnect)
+		packages.DB_read(dbConnect)
 		packages.ScanDir(DIR_PATH)
 
 		//Слайс для хранения информации о новых файлах, т.е. разницы между базой и папкой
-		items := packages.GetItemsDifferents(packages.Arr_items_DBStruct, packages.Arr_items_FolderStruct)
+		items := packages.DifferentsToWriteDB(packages.Arr_items_DBStruct, packages.Arr_items_FolderStruct)
 
 		for _, item := range items {
 			fmt.Println("Найден файл: " + item.FileName)
-			packages.WriteDatabase(item.FileName, item.FileSize) //Запись в базу данных
+			packages.DB_write(item.FileName, item.FileSize) //Запись в базу данных
 		}
 
 		log.Println("Сканирование...")

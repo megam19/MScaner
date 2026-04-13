@@ -10,7 +10,7 @@ var queryPrepare *sql.Stmt
 
 const DatabasePath = "./database/sqlite3DB.db"
 
-func ConnectToDB() *sql.DB {
+func DB_connect() *sql.DB {
 
 	DB, err := sql.Open("sqlite", DatabasePath)
 	if err != nil {
