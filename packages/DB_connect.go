@@ -28,7 +28,6 @@ func DB_connect() *sql.DB {
 		log.Fatalf("Ошибка при создании таблицы: %q", err)
 	}
 	queryPrepare.Exec()
-	//CreateDBifNotExists()
-	//defer Database.Close()
+
 	return DB
 }
