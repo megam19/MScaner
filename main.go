@@ -32,7 +32,7 @@ func main() {
 
 		for _, item := range items {
 			fmt.Println("Найден новый файл: " + item.FileName)
-			packages.DB_write(item.FileName, item.FileSize) //Запись в базу данных
+			packages.DB_write(dbConnect, item.FileName, item.FileSize) //Запись в базу данных
 		}
 
 		log.Println("Сканирование завершено. Следующее через", timeSleep, "секунд...")

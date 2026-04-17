@@ -5,9 +5,7 @@ import (
 	"log"
 )
 
-func DB_write(fileName string, fileSize int64) {
-	DB, _ = sql.Open("sqlite", DatabasePath)
-	//defer DB.Close()
+func DB_write(DB *sql.DB, fileName string, fileSize int64) {
 
 	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
 	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?)
