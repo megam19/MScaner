@@ -7,17 +7,17 @@ import (
 	"path/filepath"
 )
 
-func ScanDir(dirPath string) {
+func ScanDir(dirPath string) []ItemStruct {
 
-	var i_folder ItemStruct
-	Arr_items_FolderStruct = Arr_items_FolderStruct[:0] //обнуление слайса но остается прежняя capacity
+	var folderInfo_struct ItemStruct
+	var Arr_folderInfo_structs []ItemStruct
 
 	files, err := os.ReadDir(dirPath) // Читаем все файлы по пути dirPath(Расчет на 20-40к файлов)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Ошибка при чтении директории: ", dirPath, err)
 	}
 
-	//Читаем название,размер файлов только .mxf формат, остальное отбрасываем
+	//Читаем название,размер файлов, только .mxf формат, остальное отбрасываем
 	for _, file := range files {
 		if file.IsDir() || filepath.Ext(file.Name()) != ".mxf" {
 			fmt.Println("Совсем не MXF: " + file.Name())
@@ -31,8 +31,9 @@ func ScanDir(dirPath string) {
 
 		size := info.Size() / 1024 //Преобразование в КБ
 
-		i_folder = ItemStruct{file.Name(), size}                          //наполняем структуру
-		Arr_items_FolderStruct = append(Arr_items_FolderStruct, i_folder) // наполняем массив структурами
+		folderInfo_struct = ItemStruct{file.Name(), size}                          //наполняем структуру
+		Arr_folderInfo_structs = append(Arr_folderInfo_structs, folderInfo_struct) // наполняем массив структурами
 	}
-
+	log.Println("Завершена сканирование папки: ", dirPath)
+	return Arr_folderInfo_structs
 }

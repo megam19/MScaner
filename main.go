@@ -11,24 +11,22 @@ import (
 )
 
 const DIR_PATH = "\\\\air-02\\imagine_mxf"
-
-//const DIR_PATH = "\\\\fserver\\harris"
-
 const timeSleep = 120 //в секундах
+const deletePeriodDays = 10
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)
 	dbConnect := packages.DB_connect()
 
-	triggers.AutoPurgeFilesAndDB(dbConnect, 20, DIR_PATH) //Будет создан триггер на каждый день 00:00
+	triggers.AutoPurgeFilesAndDB(dbConnect, deletePeriodDays, DIR_PATH) //Будет создан триггер на каждый день 00:00
 
 	for {
 
-		packages.DB_read(dbConnect)
-		packages.ScanDir(DIR_PATH)
+		Arr_FilesInfo := packages.ScanDir(DIR_PATH)
+		Arr_items_DBStruct := packages.DB_read(dbConnect)
 
 		//Слайс для хранения информации о новых файлах, т.е. разницы между базой и папкой
-		items := packages.DifferentsToWriteDB(packages.Arr_items_DBStruct, packages.Arr_items_FolderStruct)
+		items := packages.DifferentsToWriteDB(Arr_items_DBStruct, Arr_FilesInfo)
 
 		for _, item := range items {
 			fmt.Println("Найден новый файл: " + item.FileName)
