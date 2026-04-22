@@ -1,5 +1,7 @@
 database/
 tmp/
 scan-target/
+dist/
+config.env
 .DS_Store
 
