@@ -1,0 +1,8 @@
+.git
+.gitignore
+tmp
+database
+scan-target
+*.md
+Dockerfile
+docker-compose.yml
