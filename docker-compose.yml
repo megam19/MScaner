@@ -1,0 +1,29 @@
+services:
+  mscaner:
+    build: .
+    container_name: mscaner
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    volumes:
+      # Source code — edit on host, container auto-rebuilds via air
+      - .:/app
+      # Persist go module cache between rebuilds
+      - go-mod-cache:/go/pkg/mod
+      # Directory being scanned. Point this at your host folder with .mxf files.
+      - ./scan-target:/scan
+      # Persist SQLite database file
+      - ./database:/app/database
+    environment:
+      DIR_PATH: /scan
+      FILE_EXTENSION: .mxf
+      DATABASE_PATH: /app/database/sqlite3DB.db
+      SCAN_INTERVAL_SEC: "120"
+      PURGE_INTERVAL_HOURS: "24"
+      RETENTION_DAYS: "10"
+      HTTP_ADDR: ":8080"
+      HIGHLIGHT_WINDOW_SEC: "3600"
+
+volumes:
+  go-mod-cache:

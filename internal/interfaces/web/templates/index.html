@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>MScaner — файлы</title>
+    <meta http-equiv="refresh" content="30">
+    <style>
+        body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; color: #222; }
+        h1 { margin: 0 0 .25rem; }
+        .meta { color: #888; font-size: .9rem; margin-bottom: 1rem; }
+        .legend { display: inline-flex; gap: 1rem; font-size: .9rem; margin-bottom: 1rem; }
+        .legend span { display: inline-flex; align-items: center; gap: .4rem; }
+        .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+        .dot.new { background: #2e7d32; }
+        .dot.deleted { background: #c62828; }
+        table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+        th, td { border-bottom: 1px solid #eee; padding: .5rem .75rem; text-align: left; }
+        th { background: #f7f7f7; position: sticky; top: 0; }
+        tr:hover td { background: #fafafa; }
+        td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        tr.row-new td { background: #e8f5e9; }
+        tr.row-new:hover td { background: #d8efd9; }
+        tr.row-deleted td { background: #ffebee; color: #8b0000; text-decoration: line-through; }
+        tr.row-deleted:hover td { background: #ffd6d9; }
+        .empty { color: #888; padding: 2rem 0; text-align: center; }
+        .badge { display: inline-block; padding: 0 .4rem; border-radius: 3px; font-size: .75rem; font-weight: 600; text-decoration: none; }
+        .badge.new { background: #2e7d32; color: #fff; }
+        .badge.deleted { background: #c62828; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>MScaner</h1>
+    <div class="meta">
+        Всего записей: {{.Count}} · новых: {{.Added}} · удалённых: {{.Deleted}} · обновлено {{.Now.Format "2006-01-02 15:04:05"}} UTC · автообновление каждые 30с
+    </div>
+    <div class="legend">
+        <span><span class="dot new"></span>новые (за последние {{.WindowHuman}})</span>
+        <span><span class="dot deleted"></span>удалены (пропали из папки)</span>
+    </div>
+
+    {{if .Rows}}
+    <table>
+        <thead>
+            <tr>
+                <th>Имя файла</th>
+                <th>Размер, КБ</th>
+                <th>Создан</th>
+                <th>Обновлён</th>
+                <th>Удалён</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Rows}}
+            <tr class="row-{{.Status}}">
+                <td>{{.Name}}</td>
+                <td class="num">{{.Size}}</td>
+                <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+                <td>{{.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
+                <td>{{if .DeletedAt}}{{.DeletedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</td>
+                <td>
+                    {{if eq .Status "new"}}<span class="badge new">NEW</span>
+                    {{else if eq .Status "deleted"}}<span class="badge deleted">DELETED</span>
+                    {{end}}
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <div class="empty">Записей пока нет — ждём первое сканирование.</div>
+    {{end}}
+</body>
+</html>

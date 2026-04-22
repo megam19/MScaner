@@ -1,1 +1,5 @@
-database/sqlite3DB.db
+database/
+tmp/
+scan-target/
+.DS_Store
+
