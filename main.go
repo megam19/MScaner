@@ -12,7 +12,7 @@ import (
 
 const DIR_PATH = "\\\\air-02\\imagine_mxf"
 const timeSleep = 120 //в секундах
-const deletePeriodDays = 10
+const deletePeriodDays = 15
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)
@@ -34,6 +34,7 @@ func main() {
 		}
 
 		log.Println("Сканирование завершено. Следующее через", timeSleep, "секунд...")
+		log.Println("//")
 		time.Sleep(time.Duration(timeSleep) * time.Second) // Повторять каждые timeSleep секунд
 	}
 }

@@ -4,7 +4,8 @@ package packages
 // - есть в folder, но нет в db   → новые
 // - есть в обоих, но размер отличается → изменённые
 func DifferentsToWriteDB(db []ItemStruct, folder []ItemStruct) []ItemStruct {
-	// Карта для быстрого поиска: имя файла → размер в базе
+
+	// Карта для быстрого поиска: имя файла > размер в базе
 	dbMap := make(map[string]int64, len(db))
 
 	for _, item := range db {
@@ -21,6 +22,5 @@ func DifferentsToWriteDB(db []ItemStruct, folder []ItemStruct) []ItemStruct {
 			results = append(results, file)
 		}
 	}
-
 	return results
 }

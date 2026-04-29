@@ -34,6 +34,6 @@ func ScanDir(dirPath string) []ItemStruct {
 		folderInfo_struct = ItemStruct{file.Name(), size}                          //наполняем структуру
 		Arr_folderInfo_structs = append(Arr_folderInfo_structs, folderInfo_struct) // наполняем массив структурами
 	}
-	log.Println("Завершена сканирование папки: ", dirPath)
+	log.Println("Завершена сканирование папки:", "Forward2")
 	return Arr_folderInfo_structs
 }
