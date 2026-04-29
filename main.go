@@ -12,7 +12,7 @@ import (
 
 const DIR_PATH = "\\\\air-02\\imagine_mxf"
 const timeSleep = 120 //в секундах
-const deletePeriodDays = 15
+const deletePeriodDays = 20
 
 func main() {
 	fmt.Println("Список файлов в: " + DIR_PATH)

@@ -6,7 +6,8 @@ import (
 )
 
 var DB *sql.DB
-var queryPrepare *sql.Stmt
+
+//var queryPrepare *sql.Stmt
 
 const DatabasePath = "./database/sqlite3DB.db"
 
@@ -14,7 +15,7 @@ func DB_connect() *sql.DB {
 
 	DB, err := sql.Open("sqlite", DatabasePath)
 	if err != nil {
-		log.Fatalf("Ошибка открытия базы %d", err)
+		log.Fatalf("Ошибка открытия базы %v", err)
 	}
 
 	queryCreateDB := `CREATE TABLE IF NOT EXISTS files(
@@ -23,11 +24,10 @@ func DB_connect() *sql.DB {
 						createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
 						updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
 					)`
-	queryPrepare, err := DB.Prepare(queryCreateDB)
+	_, err = DB.Exec(queryCreateDB)
 	if err != nil {
 		log.Fatalf("Ошибка при создании таблицы: %q", err)
 	}
-	queryPrepare.Exec()
 
 	return DB
 }
@@ -58,7 +58,7 @@ func DB_read(db *sql.DB) []ItemStruct {
 	return Arr_items_DBStruct
 }
 
-func DB_write(DB *sql.DB, fileName string, fileSize int64) {
+func DB_write(db *sql.DB, fileName string, fileSize int64) {
 
 	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
 	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES (?, ?)
@@ -66,15 +66,9 @@ func DB_write(DB *sql.DB, fileName string, fileSize int64) {
 				fileSize = excluded.fileSize,
 				updatedAt = CURRENT_TIMESTAMP;`
 
-	result, err := DB.Prepare(queryINSERT)
+	_, err := db.Exec(queryINSERT, fileName, fileSize)
 	if err != nil {
-		log.Fatal("Ошибка в записи в базу данных")
-	}
-	defer result.Close()
-
-	_, err = result.Exec(fileName, fileSize)
-	if err != nil {
-		log.Printf("ошибка выполнения запроса для файла %s: %v", fileName, err)
+		log.Printf("Ошибка в записи в базу данных %s: %v", fileName, err)
 	}
 
 	log.Printf("✓ Файл записан/обновлён: %s (%d KB)", fileName, fileSize)
