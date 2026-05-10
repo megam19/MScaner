@@ -17,6 +17,9 @@ func AutoPurgeFilesAndDB(db *sql.DB, deletePeriodDays int, dirPath string) {
 
 	var count = 0
 
+	// Рассчитываем точку отсечки (например, 30 дней назад)
+	//deletePorog := time.Now().AddDate(0, 0, -deletePeriodDays)
+
 	timenow := time.Now().UTC() //Берем текущую дату в UTC
 	rows, err := db.Query(`SELECT fileName, fileSize, updatedAt FROM files;`)
 	if err != nil {
@@ -33,11 +36,12 @@ func AutoPurgeFilesAndDB(db *sql.DB, deletePeriodDays int, dirPath string) {
 		}
 
 		//Сравнивает дату если старше указанных дней deletePeriodDay, удаляем
-		if item.updatedAt <= timenow.AddDate(0, 0, -deletePeriodDays).Format("2006-01-02T15:04:05Z") { //Специальный формат для Go "2006-01-02T15:04:05Z"
+		if item.updatedAt <= timenow.AddDate(0, 0, -deletePeriodDays).Format("2006-01-02T15:04:05.000000") { //Специальный формат для Go "2006-01-02T15:04:05Z"
 			count++
 			fmt.Println("На удаление: ", item.updatedAt+" "+item.fileName)
 
 			//deleteInDB("2018_03_31_WFCA_46_1_3.mxf", db)
+			//packages.DB_Delete(db, item.fileName)
 		}
 	}
 	fmt.Println("Количество найденных файлов:", count)
