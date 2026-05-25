@@ -19,7 +19,7 @@ func DB_connect() *sql.DB {
 	//Провайдеры: sqlite, postgres
 	DB, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalf("Ошибка открытия базы %v", err)
+		log.Printf("Ошибка открытия базы %v", err)
 	}
 	//SQLITE
 	/*queryCreateDB := `CREATE TABLE IF NOT EXISTS files(
@@ -31,10 +31,10 @@ func DB_connect() *sql.DB {
 
 	//PostgreSQL
 	queryCreateDB := `CREATE TABLE IF NOT EXISTS files (
-						fileName TEXT NOT NULL UNIQUE,
-						fileSize BIGINT,
-						createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-						updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+						filename TEXT PRIMARY KEY,
+						filesize BIGINT,
+						createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+						updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 					);`
 	_, err = DB.Exec(queryCreateDB)
 	if err != nil {
@@ -44,12 +44,12 @@ func DB_connect() *sql.DB {
 	return DB
 }
 
-func DB_read(db *sql.DB) []ItemStruct {
+func ReadDb(db *sql.DB) []ItemStruct {
 
 	var i_db ItemStruct
 	var Arr_items_DBStruct []ItemStruct
 
-	querySELECT := `SELECT fileName, fileSize FROM files;`
+	querySELECT := `SELECT filename, filesize FROM files;`
 	rows, err := db.Query(querySELECT)
 	if err != nil {
 		log.Println("Ошибка запроса в базу данных", err.Error())
@@ -70,13 +70,13 @@ func DB_read(db *sql.DB) []ItemStruct {
 	return Arr_items_DBStruct
 }
 
-func DB_write(db *sql.DB, fileName string, fileSize int64) {
+func WriteToDB(db *sql.DB, fileName string, fileSize int64) {
 
 	//Запрос записывает в случае отсутствует fileName или изменился размер файла.
-	queryINSERT := `INSERT INTO files (fileName, fileSize) VALUES ($1, $2)
-			  ON CONFLICT(fileName) DO UPDATE SET 
-				fileSize = excluded.fileSize,
-				updatedAt = CURRENT_TIMESTAMP;`
+	queryINSERT := `INSERT INTO files (filename, filesize) VALUES ($1, $2)
+					ON CONFLICT(filename) DO UPDATE SET 
+					filesize = excluded.filesize,
+					updatedat = CURRENT_TIMESTAMP;`
 
 	_, err := db.Exec(queryINSERT, fileName, fileSize)
 	if err != nil {
@@ -85,12 +85,11 @@ func DB_write(db *sql.DB, fileName string, fileSize int64) {
 
 	log.Printf("✓ Файл записан/обновлён: %s (%d KB)", fileName, fileSize)
 }
-func DB_Delete(db *sql.DB, fileName string) {
-	test := "2018_03_31_WFCA_46_1_3.mxf"
 
-	_, err := db.Exec("DELETE FROM files WHERE fileName=$1", test)
+func DeleteInDB(db *sql.DB, fileName string) {
+
+	_, err := db.Exec("DELETE FROM files WHERE filename=$1", fileName)
 	if err != nil {
-		fmt.Println("не удалось очистить с базы", test, err.Error())
+		fmt.Println("не удалось очистить с базы", fileName, err.Error())
 	}
-	//fmt.Println("С базы удален", fileName)
 }

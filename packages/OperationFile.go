@@ -37,3 +37,11 @@ func ScanDir(dirPath string) []ItemStruct {
 	log.Println("Завершена сканирование папки:", "Forward2")
 	return Arr_folderInfo_structs
 }
+
+func DeleteFile(dirPath string, filename string) {
+	fullpath := filepath.Join(dirPath, filename)
+	if err := os.Remove(fullpath); err != nil {
+		log.Printf("Не удалось удалить файл %s: %v", filename, err)
+	}
+
+}

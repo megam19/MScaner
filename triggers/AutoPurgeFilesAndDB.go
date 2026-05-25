@@ -1,63 +1,46 @@
 package triggers
 
 import (
+	"MScaner/packages"
 	"database/sql"
 	"fmt"
 	"log"
 	"time"
 )
 
-type item_db struct {
-	fileName  string
-	fileSize  int64
-	updatedAt string
-}
-
 func AutoPurgeFilesAndDB(db *sql.DB, deletePeriodDays int, dirPath string) {
 
-	var count = 0
+	porogDney := time.Now().UTC().AddDate(0, 0, -deletePeriodDays) //Берем текущую дату в UTC с минусом дней deletePeriodDays
+	deletedCount := 0
 
-	// Рассчитываем точку отсечки (например, 30 дней назад)
-	//deletePorog := time.Now().AddDate(0, 0, -deletePeriodDays)
-
-	timenow := time.Now().UTC() //Берем текущую дату в UTC
-	rows, err := db.Query(`SELECT fileName, fileSize, updatedAt FROM files;`)
+	rows, err := db.Query(`
+		SELECT fileName, fileSize, updatedAt 
+		FROM files 
+		WHERE updatedAt < $1;
+		`, porogDney)
 	if err != nil {
-		log.Println("Ошибка запроса в базу данных")
+		log.Printf("Ошибка запроса к БД %v", err)
+		return
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var item item_db
+		var item struct {
+			fileName  string
+			fileSize  int64
+			updatedAt time.Time
+		}
+
 		err := rows.Scan(&item.fileName, &item.fileSize, &item.updatedAt)
 		if err != nil {
-			log.Println(err)
+			log.Printf("Ошибка сканировния строки: %v", err)
 			continue
 		}
+		fmt.Printf("На удаление: %s (%s)\n", item.fileName, item.updatedAt.Format(time.RFC3339))
 
-		//Сравнивает дату если старше указанных дней deletePeriodDay, удаляем
-		if item.updatedAt <= timenow.AddDate(0, 0, -deletePeriodDays).Format("2006-01-02T15:04:05.000000") { //Специальный формат для Go "2006-01-02T15:04:05Z"
-			count++
-			fmt.Println("На удаление: ", item.updatedAt+" "+item.fileName)
-
-			//deleteInDB("2018_03_31_WFCA_46_1_3.mxf", db)
-			//packages.DB_Delete(db, item.fileName)
-		}
+		packages.DeleteInDB(db, item.fileName)
+		deletedCount++
 	}
-	fmt.Println("Количество найденных файлов:", count)
-}
-
-func deleteInDB(id string, db *sql.DB) {
-
-	query := `DELETE FROM files WHERE fileName=$1`
-	res, err := db.Exec(query, id)
-	if err != nil {
-		log.Printf("ошибка выполнения запроса для файла %s: %v", id, err)
-	}
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		fmt.Println("Не удалось получить RowsAffected %w", err)
-		return
-	}
-	fmt.Printf("Удалено файлов: %d", rowsAffected)
+	log.Printf("✅ AutoPurge завершён, удалено записей: %d", deletedCount)
+	fmt.Println("")
 }
