@@ -11,7 +11,7 @@ import (
 )
 
 const DIR_PATH = "\\\\air-02\\imagine_mxf"
-const timeSleep = 5 //в минутах
+const timeSleep = 60 //в минутах
 const deletePeriodDays = 25
 
 func main() {
