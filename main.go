@@ -21,6 +21,11 @@ func main() {
 	triggers.AutoPurgeFilesAndDB(dbConnect, deletePeriodDays, DIR_PATH) //Будет создан триггер на каждый день 00:00
 
 	for {
+		now := time.Now()
+		if now.Hour() == 00 && now.Minute() == 0 {
+			fmt.Println("Наступила полночь! Запускаю очистку...")
+			triggers.AutoPurgeFilesAndDB(dbConnect, deletePeriodDays, DIR_PATH) //Будет создан триггер на каждый день 00:00
+		}
 
 		Arr_FilesInfo := packages.ScanDir(DIR_PATH)
 		Arr_items_DBStruct := packages.ReadDb(dbConnect)

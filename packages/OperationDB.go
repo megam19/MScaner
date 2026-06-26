@@ -10,24 +10,14 @@ import (
 
 var DB *sql.DB
 
-//var queryPrepare *sql.Stmt
-
-const DatabasePath = "./database/sqlite3DB.db"
 const connStr = "host=192.168.109.205 port=5432 user=postgres password=aA123456 dbname=mscaner sslmode=disable"
 
 func DB_connect() *sql.DB {
-	//Провайдеры: sqlite, postgres
+	//Провайдер: postgres
 	DB, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Printf("Ошибка открытия базы %v", err)
 	}
-	//SQLITE
-	/*queryCreateDB := `CREATE TABLE IF NOT EXISTS files(
-		fileName TEXT NOT NULL UNIQUE,
-		fileSize INTEGER,
-		createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-		updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`*/
 
 	//PostgreSQL
 	queryCreateDB := `CREATE TABLE IF NOT EXISTS files (
@@ -40,7 +30,6 @@ func DB_connect() *sql.DB {
 	if err != nil {
 		log.Fatalf("Ошибка при создании таблицы: %q", err)
 	}
-
 	return DB
 }
 
