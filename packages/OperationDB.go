@@ -55,7 +55,7 @@ func ReadDb(db *sql.DB) []ItemStruct {
 		Arr_items_DBStruct = append(Arr_items_DBStruct, i_db) // наполняем массив структурами
 	}
 
-	log.Println("Завершена чтение базы данных")
+	log.Println("✅ Завершена чтение базы данных")
 	return Arr_items_DBStruct
 }
 

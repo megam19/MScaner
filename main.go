@@ -42,7 +42,7 @@ func main() {
 			packages.WriteToDB(dbConnect, item.FileName, item.FileSize) //Запись в базу данных
 		}
 
-		log.Println("Следующее через", timeSleep, "минут...")
+		log.Println("Следующея проверка через", timeSleep, "минут...")
 		log.Println("")
 		time.Sleep(time.Duration(timeSleep) * time.Minute) // Повторять каждые timeSleep секунд
 	}
@@ -53,7 +53,7 @@ func dailyPurgeWithMutex(dbConnect *sql.DB, deletePeriodDays int, dirPath string
 	for {
 		now := time.Now()
 		nextMidnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
-		fmt.Println(nextMidnight)
+		fmt.Println(nextMidnight.Sub(now), "🕛 До запуска следующего процесса очистки")
 		time.Sleep(nextMidnight.Sub(now))
 
 		purgeMutex.Lock() //О
