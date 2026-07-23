@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -18,6 +19,11 @@ func DB_connect() *sql.DB {
 	if err != nil {
 		log.Printf("Ошибка открытия базы %v", err)
 	}
+	//Проверка подключения к базе, если получили err не nil тогда вызывает функцию переподключения
+	if err := DB.Ping(); err != nil {
+		log.Println("⚠️ Потеря соединения с БД, переподключение...")
+		DB = reconnectDB(connStr)
+	}
 
 	//PostgreSQL
 	queryCreateDB := `CREATE TABLE IF NOT EXISTS files (
@@ -31,6 +37,21 @@ func DB_connect() *sql.DB {
 		log.Fatalf("Ошибка при создании таблицы: %q", err)
 	}
 	return DB
+}
+
+// Функция переподключения когда БД недоступна с заданным интервалом переподключения:
+func reconnectDB(connStr string) *sql.DB {
+	for {
+		db, err := sql.Open("postgres", connStr)
+		if err == nil {
+			if err = db.Ping(); err == nil {
+				log.Println("✅ Подключение к БД восстановлено")
+				return db
+			}
+		}
+		log.Printf("⚠️ БД недоступна, повтор через 30 сек: %v", err)
+		time.Sleep(30 * time.Second)
+	}
 }
 
 func ReadDb(db *sql.DB) []ItemStruct {
